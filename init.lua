@@ -26,30 +26,24 @@ minetest.register_entity("brick_to_window:thrown_brick", {
         local pos = self.object:get_pos()
         if not self.velocity then return end
 
-        -- Calcola la prossima posizione
         local next_pos = vector.add(pos, vector.multiply(self.velocity, dtime))
 
-        -- Raycast tra posizione attuale e futura
         local ray = minetest.raycast(pos, next_pos, true, false)
         for pointed in ray do
             if pointed.type == "node" then
                 local node = minetest.get_node(pointed.under)
                 if node.name == glass_node then
-                    -- Rompe il vetro
                     minetest.set_node(pointed.under, {name = "air"})
                 end
-                -- In ogni caso, droppa il mattone
                 minetest.add_item(pointed.under, brick_item)
                 self.object:remove()
                 return
             end
         end
 
-        -- Movimento manuale
         self.velocity = vector.add(self.velocity, vector.multiply(self.acceleration, dtime))
         self.object:set_pos(next_pos)
 
-        -- Timeout: droppa il mattone anche se non ha colpito nulla
         if self.timer > 5 then
             minetest.add_item(self.object:get_pos(), brick_item)
             self.object:remove()
@@ -61,7 +55,6 @@ minetest.register_entity("brick_to_window:thrown_brick", {
     end,
 })
 
--- Lancio del mattone con clic sinistro
 minetest.register_on_punchnode(function(_, _, puncher)
     if not puncher then return end
 
